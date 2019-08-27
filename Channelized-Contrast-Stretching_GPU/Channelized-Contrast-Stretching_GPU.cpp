@@ -1,8 +1,7 @@
-
 /* -------------------------------------------------------------------------------------------------|
 IMAGE CONTRAST ENHANCEMENT IN SPATIAL DOMAIN USING LINEAR, PIECEWISE LINEAR, EXP., LOG. STRETCHING. |
-IMAGE CONTRAST ENHANCEMENT IN SPATIAL DOMAIN USING POWER LAW TRANSFORMATION.						|			    |
-Contrast Enhancement.cpp : Defines the entry point for the console application.					    |
+IMAGE CONTRAST ENHANCEMENT IN SPATIAL DOMAIN USING POWER LAW TRANSFORMATION.			    |			 
+Contrast Enhancement.cpp : Defines the entry point for the console application.		            |
 ...................................................................................................*/
 
 //++++++++++++++++++++++++++++++++++ START HEADER FILES +++++++++++++++++++++++++++++++++++++++++++++
@@ -28,113 +27,113 @@ using namespace cv;
 //+++++++++++++++++++++++++++++++ LINEAR STRETCHING KERNEL ++++++++++++++++++++++++++++++++++++++++++
 // OpenCL Linear Stretching Kernel Which Is Run For Every Work Item Created
 const char *linear_kernel =
-"#pragma OPENCL EXTENSION cl_khr_fp32 : enable													\n"	\
-"#pragma OPENCL EXTENSION cl_khr_printf : enable												\n"	\
-"__kernel																						\n"	\
-"void linear_kernel (__global float* data,														\n"	\
-"		double max,																				\n"	\
-"		double min)																				\n"	\
-"{																								\n"	\
-"	// Get the index of work items																\n"	\
-"	uint index = get_global_id(0);																\n"	\
-"	data[index] = (data[index] - min) / (max - min) * 255.0;									\n"	\
-"}																								\n"	\
+"#pragma OPENCL EXTENSION cl_khr_fp32 : enable							\n" \
+"#pragma OPENCL EXTENSION cl_khr_printf : enable						\n" \
+"__kernel											\n" \
+"void linear_kernel (__global float* data,							\n" \
+"		double max,									\n" \
+"		double min)									\n" \
+"{												\n" \
+"	// Get the index of work items								\n" \
+"	uint index = get_global_id(0);								\n" \
+"	data[index] = (data[index] - min) / (max - min) * 255.0;				\n" \
+"}												\n" \
 "\n";
 //+++++++++++++++++++++++++++++ END LINEAR STRETCHING KERNEL ++++++++++++++++++++++++++++++++++++++++
 
 //++++++++++++++++++++++++++ PIECEWISE LINEAR STRETCHING KERNEL +++++++++++++++++++++++++++++++++++++
 // OpenCL Piece wise Linear Kernel Which Is Run For Every Work Item Created
 const char *pw_linear_kernel =
-"#pragma OPENCL EXTENSION cl_khr_fp32 : enable													\n"	\
-"#pragma OPENCL EXTENSION cl_khr_printf : enable												\n"	\
-"__kernel																						\n"	\
-"void pw_linear_kernel (__global float* data,													\n"	\
-"		double max,																				\n"	\
-"		double min,																				\n"	\
-"		int Seg)																				\n"	\
-"{																								\n"	\
-"	// Get the index of work items																\n"	\
-"	uint index = get_global_id(0);																\n"	\
-"	float range = max - min + 1.0;																\n"	\
-"	float pixel, final;																			\n"	\
-"	pixel = data[index];																		\n"	\
-"	if (Seg == 3){																				\n" \
-"		float fold = range / 3;																	\n"	\
-"		if (pixel < min && pixel <= min + fold - 1){											\n"	\
-"			final = 63 / (fold - 1) * (pixel - min); }											\n"	\
-"		else if (pixel > min + fold - 1 && pixel <= min + 2*fold - 1){							\n"	\
-"			final = 128 / (fold) * (pixel - min - fold + 1) + 63; }								\n"	\
-"		else{ final = 64 / (fold) * (pixel - min - 2 * fold + 1) + 191; } }						\n"	\
-"	else if (Seg == 4){																			\n" \
-"		float fold = range / 4;																	\n"	\
-"		if (pixel < min && pixel <= min + fold - 1){											\n"	\
-"			final = 31 / (fold - 1) * (pixel - min); }											\n"	\
-"		else if (pixel > min + fold - 1 && pixel <= min + 2 * fold - 1){						\n"	\
-"			final = 96 / (fold) * (pixel - min - fold + 1) + 31; }								\n"	\
-"		else if (pixel > min + 2 * fold - 1 && pixel <= min + 3 * fold - 1){					\n"	\
-"			final = 96 / (fold) * (pixel - min - 2 * fold + 1) + 127; }							\n"	\
-"		else{ final = 32 / (fold) * (pixel - min - 3 * fold + 1) + 191; } }						\n"	\
-"	else{																						\n" \
-"		float fold = range / 5;																	\n"	\
-"		if (pixel < min && pixel <= min + fold - 1){											\n"	\
-"			final = 15 / (fold - 1) * (pixel - min); }											\n"	\
-"		else if (pixel > min + fold - 1 && pixel <= min + 2 * fold - 1){						\n"	\
-"			final = 64 / (fold) * (pixel - min - fold + 1) + 15; }								\n"	\
-"		else if (pixel > min + 2 * fold - 1 && pixel <= min + 3 * fold - 1){					\n"	\
-"			final = 96 / (fold) * (pixel - min - 2 * fold + 1) + 79; }							\n"	\
-"		else if (pixel > min + 3 * fold - 1 && pixel <= min + 4 * fold - 1){					\n"	\
-"			final = 64 / (fold) * (pixel - min - 3 * fold + 1) + 175; }							\n"	\
-"		else{ final = 16 / (fold) * (pixel - min - 4 * fold + 1) + 239; } }						\n"	\
-"	data[index] = final;																		\n"	\
-"}																								\n"	\
+"#pragma OPENCL EXTENSION cl_khr_fp32 : enable							\n" \
+"#pragma OPENCL EXTENSION cl_khr_printf : enable						\n" \
+"__kernel											\n" \
+"void pw_linear_kernel (__global float* data,							\n" \
+"		double max,									\n" \
+"		double min,									\n" \
+"		int Seg)									\n" \
+"{												\n" \
+"	// Get the index of work items								\n" \
+"	uint index = get_global_id(0);								\n" \
+"	float range = max - min + 1.0;								\n" \
+"	float pixel, final;									\n" \
+"	pixel = data[index];									\n" \
+"	if (Seg == 3){										\n" \
+"		float fold = range / 3;								\n" \
+"		if (pixel < min && pixel <= min + fold - 1){					\n" \
+"			final = 63 / (fold - 1) * (pixel - min); }				\n" \
+"		else if (pixel > min + fold - 1 && pixel <= min + 2*fold - 1){			\n" \
+"			final = 128 / (fold) * (pixel - min - fold + 1) + 63; }			\n" \
+"		else{ final = 64 / (fold) * (pixel - min - 2 * fold + 1) + 191; } }		\n" \
+"	else if (Seg == 4){									\n" \
+"		float fold = range / 4;								\n" \
+"		if (pixel < min && pixel <= min + fold - 1){					\n" \
+"			final = 31 / (fold - 1) * (pixel - min); }				\n" \
+"		else if (pixel > min + fold - 1 && pixel <= min + 2 * fold - 1){		\n" \
+"			final = 96 / (fold) * (pixel - min - fold + 1) + 31; }			\n" \
+"		else if (pixel > min + 2 * fold - 1 && pixel <= min + 3 * fold - 1){		\n" \
+"			final = 96 / (fold) * (pixel - min - 2 * fold + 1) + 127; }		\n" \
+"		else{ final = 32 / (fold) * (pixel - min - 3 * fold + 1) + 191; } }		\n" \
+"	else{											\n" \
+"		float fold = range / 5;								\n" \
+"		if (pixel < min && pixel <= min + fold - 1){					\n" \
+"			final = 15 / (fold - 1) * (pixel - min); }				\n" \
+"		else if (pixel > min + fold - 1 && pixel <= min + 2 * fold - 1){		\n" \
+"			final = 64 / (fold) * (pixel - min - fold + 1) + 15; }			\n" \
+"		else if (pixel > min + 2 * fold - 1 && pixel <= min + 3 * fold - 1){		\n" \
+"			final = 96 / (fold) * (pixel - min - 2 * fold + 1) + 79; }		\n" \
+"		else if (pixel > min + 3 * fold - 1 && pixel <= min + 4 * fold - 1){		\n" \
+"			final = 64 / (fold) * (pixel - min - 3 * fold + 1) + 175; }		\n" \
+"		else{ final = 16 / (fold) * (pixel - min - 4 * fold + 1) + 239; } }		\n" \
+"	data[index] = final;									\n" \
+"}												\n" \
 "\n";
 //+++++++++++++++++++++++ END PIECEWISE LINEAR STRETCHING KERNEL ++++++++++++++++++++++++++++++++++++
 
 //++++++++++++++++++++++++++++ LOGARITHIMIC STRETCHING KERNEL +++++++++++++++++++++++++++++++++++++++
 // OpenCL Logarithimic Kernel Which Is Run For Every Work Item Created
 const char *log_kernel =
-"#pragma OPENCL EXTENSION cl_khr_fp32 : enable													\n"	\
-"#pragma OPENCL EXTENSION cl_khr_printf : enable												\n"	\
-"__kernel																						\n"	\
-"void log_kernel (__global float* data)															\n"	\
-"{																								\n"	\
-"	// Get the index of work items																\n"	\
-"	uint index = get_global_id(0);																\n"	\
-"	data[index] = 46.0 * log(data[index] + 1);													\n"	\
-"}																								\n"	\
+"#pragma OPENCL EXTENSION cl_khr_fp32 : enable							\n" \
+"#pragma OPENCL EXTENSION cl_khr_printf : enable						\n" \
+"__kernel											\n" \
+"void log_kernel (__global float* data)								\n" \
+"{												\n" \
+"	// Get the index of work items								\n" \
+"	uint index = get_global_id(0);								\n" \
+"	data[index] = 46.0 * log(data[index] + 1);						\n" \
+"}												\n" \
 "\n";
 //+++++++++++++++++++++++++ END LOGARITHIMIC STRETCHING KERNEL ++++++++++++++++++++++++++++++++++++++
 
 //++++++++++++++++++++++++++++ EXPONENTIAL STRETCHING KERNEL +++++++++++++++++++++++++++++++++++++++
 // OpenCL Exponential Kernel Which Is Run For Every Work Item Created
 const char *exp_kernel =
-"#define EXP 2.72																				\n" \
-"#pragma OPENCL EXTENSION cl_khr_fp32 : enable													\n"	\
-"#pragma OPENCL EXTENSION cl_khr_printf : enable												\n"	\
-"__kernel																						\n"	\
-"void exp_kernel (__global float* data)															\n"	\
-"{																								\n"	\
-"	// Get the index of work items																\n"	\
-"	uint index = get_global_id(0);																\n"	\
-"	data[index] = pow(EXP, 0.02173 * data[index]);												\n"	\
-"}																								\n"	\
+"#define EXP 2.72										\n" \
+"#pragma OPENCL EXTENSION cl_khr_fp32 : enable							\n" \
+"#pragma OPENCL EXTENSION cl_khr_printf : enable						\n" \
+"__kernel											\n" \
+"void exp_kernel (__global float* data)								\n" \
+"{												\n" \
+"	// Get the index of work items								\n" \
+"	uint index = get_global_id(0);								\n" \
+"	data[index] = pow(EXP, 0.02173 * data[index]);						\n" \
+"}												\n" \
 "\n";
 //+++++++++++++++++++++++++ END EXPONENTIAL STRETCHING KERNEL ++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++ POWERLAW TRANSFORMATION KERNEL +++++++++++++++++++++++++++++++++++++++
 // OpenCL Powerlaw Transformation Kernel Which Is Run For Every Work Item Created
 const char *plt_kernel =
-"#pragma OPENCL EXTENSION cl_khr_fp32 : enable													\n"	\
-"#pragma OPENCL EXTENSION cl_khr_printf : enable												\n"	\
-"__kernel																						\n"	\
-"void plt_kernel (__global float* data,															\n"	\
-"		float power,																			\n"	\
-"		float Const)																			\n"	\
-"{																								\n"	\
-"	// Get the index of work items																\n"	\
-"	uint index = get_global_id(0);																\n"	\
-"	data[index] = Const * pow(data[index], power);												\n"	\
-"}																								\n"	\
+"#pragma OPENCL EXTENSION cl_khr_fp32 : enable							\n" \
+"#pragma OPENCL EXTENSION cl_khr_printf : enable						\n" \
+"__kernel											\n" \
+"void plt_kernel (__global float* data,								\n" \
+"		float power,									\n" \
+"		float Const)									\n" \
+"{												\n" \
+"	// Get the index of work items								\n" \
+"	uint index = get_global_id(0);								\n" \
+"	data[index] = Const * pow(data[index], power);						\n" \
+"}												\n" \
 "\n";
 //+++++++++++++++++++++++ END POWERLAW TRANSFORMATION KERNEL ++++++++++++++++++++++++++++++++++++++++
 
