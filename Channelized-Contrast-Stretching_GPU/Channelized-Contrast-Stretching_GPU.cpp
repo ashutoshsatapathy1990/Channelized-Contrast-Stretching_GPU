@@ -59,14 +59,14 @@ const char *pw_linear_kernel =
 "	pixel = data[index];									\n" \
 "	if (Seg == 3){										\n" \
 "		float fold = range / 3;								\n" \
-"		if (pixel < min && pixel <= min + fold - 1){					\n" \
+"		if (pixel >= min && pixel <= min + fold - 1){					\n" \
 "			final = 63 / (fold - 1) * (pixel - min); }				\n" \
 "		else if (pixel > min + fold - 1 && pixel <= min + 2*fold - 1){			\n" \
 "			final = 128 / (fold) * (pixel - min - fold + 1) + 63; }			\n" \
 "		else{ final = 64 / (fold) * (pixel - min - 2 * fold + 1) + 191; } }		\n" \
 "	else if (Seg == 4){									\n" \
 "		float fold = range / 4;								\n" \
-"		if (pixel < min && pixel <= min + fold - 1){					\n" \
+"		if (pixel >= min && pixel <= min + fold - 1){					\n" \
 "			final = 31 / (fold - 1) * (pixel - min); }				\n" \
 "		else if (pixel > min + fold - 1 && pixel <= min + 2 * fold - 1){		\n" \
 "			final = 96 / (fold) * (pixel - min - fold + 1) + 31; }			\n" \
@@ -75,7 +75,7 @@ const char *pw_linear_kernel =
 "		else{ final = 32 / (fold) * (pixel - min - 3 * fold + 1) + 191; } }		\n" \
 "	else{											\n" \
 "		float fold = range / 5;								\n" \
-"		if (pixel < min && pixel <= min + fold - 1){					\n" \
+"		if (pixel >= min && pixel <= min + fold - 1){					\n" \
 "			final = 15 / (fold - 1) * (pixel - min); }				\n" \
 "		else if (pixel > min + fold - 1 && pixel <= min + 2 * fold - 1){		\n" \
 "			final = 64 / (fold) * (pixel - min - fold + 1) + 15; }			\n" \
